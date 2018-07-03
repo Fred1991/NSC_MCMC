@@ -1,2 +1,2 @@
 # NSC_MCMC
-Sampling Script from MNIST and FashionMNIST
+Sampling from MNIST and FashionMNIST
