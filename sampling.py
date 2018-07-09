@@ -249,7 +249,7 @@ def generating_logp(iterNumMax, yita, h, pr_thres, num_subset, num_feature, alls
         x_input = x.copy()
         
         for j in range(1000):
-            grad = g.GradNormal(sample_x, x, num_feature)
+            grad = g.GradNormal(sample_x, x, num_feature, h)
             x, v = langevin2(x, v, yita, mu, damp, grad, j)
 
         probxnew = Pr_KDE(x, allsample, h)
@@ -268,3 +268,45 @@ def generating_logp(iterNumMax, yita, h, pr_thres, num_subset, num_feature, alls
             
 
     return generatedSample, x_initial, xnow, rejectSample, status
+
+
+def generating_logp_NB(iterNumMax, yita, h, num_subset, num_feature, allsample, mu, damp):
+ 
+    g = gp('GradNormal')    
+    #init pool of samples
+    generatedSample = []
+    v0 = []
+    n_all, p_all = np.shape(allsample)
+    #vNext = np.zeros(p_all)
+    v = np.zeros(p_all)
+    for i in range(iterNumMax):
+        sample, featureIndex, sample_x = randomSub(allsample, num_subset, num_feature)
+        kk = 1
+        #v[featureIndex] = vNext[featureIndex]
+# =============================================================================
+#         if i == 0:
+#             flag0 = np.random.choice(len(sample_x))
+#             x = sample_x[flag0]
+# =============================================================================
+        flag0 = np.random.choice(len(sample_x))
+        x = sample_x[flag0]
+        flag = np.random.choice(len(sample_x))
+        x1 = sample_x[flag]
+        vInit = np.zeros(p_all)
+        vInit[featureIndex] = (x1[featureIndex] - x[featureIndex]) / kk
+        v = vInit.copy()
+        v0.append(vInit)
+              
+        for j in range(100):
+            grad = g.GradNormal(sample_x, x, num_feature, h)
+            x, v = langevin2(x, v, yita, mu, damp, grad, j)
+            #print('j')
+       
+        probxnew = Pr_KDE(x, allsample, h)
+        print('pr:', probxnew)
+        #print('sample'+str(i))
+        v = np.zeros(p_all).copy()   
+        generatedSample.append(x)   
+        x = []                
+            
+    return generatedSample

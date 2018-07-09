@@ -100,6 +100,8 @@ class Gradient:
         for i in range(len(sample)):
             self.sum1 += (sample[i] - x) * np.exp((-1 / (2 * (h ** 2))) * np.dot(np.transpose(x - sample[i]), (x - sample[i])))
             self.sum2 += np.exp((-1 / (2 * (h ** 2))) * np.dot(np.transpose(x - sample[i]), (x - sample[i])))
+            
+        #print(self.sum2)
         self.sum = self.sum1 / self.sum2
         self.grad = self.sum * self.coef 
         #negetive grad 
